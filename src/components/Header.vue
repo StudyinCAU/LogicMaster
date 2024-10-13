@@ -80,7 +80,7 @@ const store = useStore();
 <style scoped>
 .header {
   @apply flex justify-between items-center;
-  @apply bg-purple-200 dark:bg-gray-800 rounded-xl shadow-purple-500/10 dark:shadow-dark-900/20 shadow-lg;
+  @apply bg-blue-200 dark:bg-gray-800 rounded-xl shadow-blue-500/10 dark:shadow-dark-900/20 shadow-lg;
   @apply px-3 sm:px-4 md:px-20 py-4 mx-2 sm:mx-4 my-4;
 }
 
@@ -115,7 +115,7 @@ const store = useStore();
 }
 
 .toolbar a:hover {
-  @apply bg-purple-600 dark:bg-gray-700 text-purple-200 dark:text-gray-200;
+  @apply bg-blue-600 dark:bg-gray-700 text-blue-200 dark:text-gray-200;
 }
 
 .toolbar select {
@@ -126,11 +126,11 @@ const store = useStore();
 }
 
 .toolbar option {
-  @apply bg-purple-50 dark:bg-gray-700 text-purple-600 dark:text-gray-200 text-center;
+  @apply bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-gray-200 text-center;
 }
 
 .toolbar select:focus,
 .toolbar select:hover {
-  @apply bg-purple-600 dark:bg-gray-700 text-purple-200 dark:text-gray-200;
+  @apply bg-blue-600 dark:bg-gray-700 text-blue-200 dark:text-gray-200;
 }
 </style>

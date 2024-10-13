@@ -64,6 +64,6 @@ a {
 }
 
 a:hover {
-  @apply bg-purple-600 dark:bg-gray-500 text-gray-50;
+  @apply bg-blue-600 dark:bg-gray-500 text-gray-50;
 }
 </style>

@@ -116,8 +116,8 @@ watch(() => props.show, () => {
     @apply p-2 gap-x-2;
     @apply md:rounded-xl;
     @apply flex flex-row justify-around items-center select-none;
-    @apply bg-purple-200 dark:bg-gray-800;
-    @apply shadow-lg shadow-purple-500/10 dark:shadow-dark-900/20;
+    @apply bg-blue-200 dark:bg-gray-800;
+    @apply shadow-lg shadow-blue-500/10 dark:shadow-dark-900/20;
 
     transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
         max-height 0.15s cubic-bezier(0.4, 0, 0.2, 1),
@@ -137,7 +137,7 @@ watch(() => props.show, () => {
     @apply flex flex-row w-auto flex-shrink-0 flex-grow md:w-15 h-10 transition transform-gpu;
     @apply rounded-lg;
     @apply items-center justify-center cursor-pointer;
-    @apply bg-purple-300 bg-opacity-20 dark:bg-gray-500/50;
+    @apply bg-blue-300 bg-opacity-20 dark:bg-gray-500/50;
 }
 
 .btn:hover {

@@ -578,13 +578,13 @@ const calcNormalForm = () => {
 }
 
 .main-input-wrapper {
-  @apply bg-purple-200 dark:bg-gray-800 rounded-xl overflow-hidden;
+  @apply bg-blue-200 dark:bg-gray-800 rounded-xl overflow-hidden;
   @apply transition relative;
-  @apply shadow-lg shadow-purple-500/10 dark:shadow-dark-900/20;
+  @apply shadow-lg shadow-blue-500/10 dark:shadow-dark-900/20;
 }
 
 .main-input-wrapper:focus-within {
-  @apply shadow-xl shadow-purple-500/10 dark:shadow-dark-900/20;
+  @apply shadow-xl shadow-blue-500/10 dark:shadow-dark-900/20;
 }
 
 .main-input-wrapper:focus-within::after {
@@ -606,23 +606,23 @@ const calcNormalForm = () => {
 
 .main-input::-webkit-input-placeholder {
   @apply select-none <sm:text-base;
-  @apply text-purple-600/50 dark:text-gray-50/50;
+  @apply text-blue-600/50 dark:text-gray-50/50;
 }
 
 .inner-wrapper {
   @apply relative;
   @apply w-full px-5 md:px-20 py-3 tracking-wider;
-  @apply bg-purple-200 dark:bg-gray-800 rounded-xl;
+  @apply bg-blue-200 dark:bg-gray-800 rounded-xl;
   @apply transition;
   @apply pt-10;
-  @apply shadow-lg shadow-purple-500/10 dark:shadow-dark-900/20;
+  @apply shadow-lg shadow-blue-500/10 dark:shadow-dark-900/20;
 }
 
 .inner-wrapper::after {
   content: attr(data-title);
   @apply px-2 py-0.5;
   @apply absolute top-0 left-0 rounded-br-md rounded-tl-xl;
-  @apply bg-purple-300 dark:bg-gray-900 dark:opacity-90;
+  @apply bg-blue-300 dark:bg-gray-900 dark:opacity-90;
 }
 
 .error-wrapper {
@@ -646,7 +646,7 @@ const calcNormalForm = () => {
 
 .used-subsequences span,
 .used-variables span {
-  @apply bg-purple-300 dark:bg-gray-900 px-3 rounded-lg;
+  @apply bg-blue-300 dark:bg-gray-900 px-3 rounded-lg;
 }
 
 .property-wrapper {
@@ -663,7 +663,7 @@ const calcNormalForm = () => {
 }
 
 .property-wrapper .item .content .content-tag {
-  @apply bg-purple-300 dark:bg-gray-900 py-0.5 px-3 rounded-lg;
+  @apply bg-blue-300 dark:bg-gray-900 py-0.5 px-3 rounded-lg;
 }
 
 .table-wrapper {
@@ -682,13 +682,13 @@ const calcNormalForm = () => {
   @apply absolute top-0 right-0;
   @apply px-2 py-0.5;
   @apply rounded-bl-md rounded-tr-xl select-none;
-  @apply bg-purple-300 dark:bg-gray-900 dark:opacity-90;
+  @apply bg-blue-300 dark:bg-gray-900 dark:opacity-90;
   @apply cursor-pointer;
   @apply transition;
 }
 
 .history-wrapper .remove-all-history-btn:hover {
-  @apply bg-purple-400/80 dark:bg-gray-600;
+  @apply bg-blue-400/80 dark:bg-gray-600;
 }
 
 .history-wrapper .history-item {
@@ -701,7 +701,7 @@ const calcNormalForm = () => {
   @apply cursor-pointer;
   @apply transition transform-gpu;
   @apply rounded-lg select-none;
-  @apply bg-purple-300/50 dark:bg-gray-900 dark:opacity-90;
+  @apply bg-blue-300/50 dark:bg-gray-900 dark:opacity-90;
 }
 
 .history-wrapper .history-item-content {
@@ -714,7 +714,7 @@ const calcNormalForm = () => {
 
 .history-wrapper .history-remove-btn:hover,
 .history-wrapper .history-item-content:hover {
-  @apply bg-purple-300/80 dark:bg-gray-600;
+  @apply bg-blue-300/80 dark:bg-gray-600;
 }
 
 .history-wrapper .history-remove-btn:active,

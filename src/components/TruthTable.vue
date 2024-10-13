@@ -80,17 +80,17 @@ td {
 
 th.level-1,
 td.level-1 {
-  @apply bg-purple-300/50 dark:bg-dark-900/50;
+  @apply bg-blue-300/50 dark:bg-dark-900/50;
 }
 
 th.level-2,
 td.level-2 {
-  @apply bg-purple-300/70 dark:bg-dark-900/70;
+  @apply bg-blue-300/70 dark:bg-dark-900/70;
 }
 
 th.level-3,
 td.level-3 {
-  @apply bg-purple-300/90 dark:bg-dark-900/90;
+  @apply bg-blue-300/90 dark:bg-dark-900/90;
 }
 
 td:first-child,

@@ -76,18 +76,18 @@ watch(() => props.item, () => {
 
 <style scoped>
 .angle {
-  @apply text-xl inline-flex transition transform-gpu rotate-0 m-1 bg-purple-400/50 dark:bg-gray-600/50 rounded-md;
+  @apply text-xl inline-flex transition transform-gpu rotate-0 m-1 bg-blue-400/50 dark:bg-gray-600/50 rounded-md;
 }
 .angle.isOpen {
   @apply rotate-90;
 }
 .tree-item:hover .angle {
-  @apply bg-purple-400 dark:bg-gray-600 text-white;
+  @apply bg-blue-400 dark:bg-gray-600 text-white;
 }
 
 .tree-item {
   @apply flex items-center gap-x-2;
-  @apply bg-purple-300 dark:bg-gray-900 my-1 px-2 rounded-md;
+  @apply bg-blue-300 dark:bg-gray-900 my-1 px-2 rounded-md;
   @apply min-w-30;
 }
 
@@ -107,6 +107,6 @@ ul {
 
 ul::after {
   content: "";
-  @apply absolute top-0 left-5.5 bottom-0 w-0.5 bg-purple-300 dark:bg-gray-600 rounded-full;
+  @apply absolute top-0 left-5.5 bottom-0 w-0.5 bg-blue-300 dark:bg-gray-600 rounded-full;
 }
 </style>

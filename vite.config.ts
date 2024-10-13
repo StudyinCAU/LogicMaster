@@ -59,7 +59,7 @@ export default defineConfig({
         '/icons/safari-pinned-tab.svg',
       ],
       manifest: {
-        name: 'Truth Table | 真值表',
+        name: 'Truth Table Generator',
         short_name: 'Truth Table',
         description: '根据逻辑表达式自动生成真值表',
         icons: [
@@ -75,7 +75,7 @@ export default defineConfig({
           },
         ],
         theme_color: '#ddd6fe',
-        start_url: 'https://tb.daidr.me',
+        start_url: 'https://github.com/StudyinCAU/LogicMaster',
         background_color: '#f5f3ff',
         display: 'standalone',
       },
