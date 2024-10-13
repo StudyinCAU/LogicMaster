@@ -17,6 +17,11 @@ import {
 } from '../utils/history';
 import FloatInputBtnGroup from '../components/FloatInputBtnGroup.vue';
 import { Icon } from '@iconify/vue';
+// import { quineMcCluskey, convertToReadableExpression } from '../utils/qm';
+import QuineMcCluskey from '../utils/quinemccluskey';
+
+
+const SimplifiedExpression = ref('');
 
 // i18n
 const { t } = useI18n();
@@ -113,6 +118,7 @@ class CustomErrorListener extends ErrorListener {
 const errorListener = new CustomErrorListener();
 
 // 生成真值表并进行相关处理的函数
+// 生成真值表并进行相关处理的函数
 const calcTruthTable = () => {
   // 获取变量个数
   const varsCount = usedVaribles.value.length;
@@ -129,6 +135,9 @@ const calcTruthTable = () => {
     rows.push(i.toString(2).padStart(varsCount, '0').split('').map(Number));
   }
 
+  // 清空之前的真值表结果
+  finalResult.splice(0);
+
   // 生成真值表
   for (let i = 0; i < rows.length; i++) {
     // 让varsCount作为values的键名
@@ -136,8 +145,20 @@ const calcTruthTable = () => {
     for (let j = 0; j < varsCount; j++) {
       values[usedVaribles.value[j]] = rows[i][j];
     }
-    finalResult.push({ values, result: finalFunction(values) });
+
+    // 调试信息：输出当前行的values
+    console.log(`Row ${i} values:`, values);
+
+    const result = finalFunction(values);  // 计算当前行的结果
+
+    // 调试信息：输出当前行的result
+    console.log(`Row ${i} result:`, result);
+
+    finalResult.push({ values, result });
   }
+
+  // 再次输出finalResult，确保所有的计算结果是正确的
+  console.log('finalResult after calculation:', finalResult);
 
   // 中间过程名称排序和过滤
   if (finalResult.length == 0) return;
@@ -159,7 +180,51 @@ const calcTruthTable = () => {
 
   // 计算析取/合取范式
   calcNormalForm();
+
+  // 生成最简与或式
+  calcSimplifiedExpression();
 };
+
+
+// 新增函数：计算最简与或式
+const calcSimplifiedExpression = () => {
+  const minterms = [];
+
+  // 获取真值表中 result 为 1 的行的索引值
+  finalResult.forEach((row, index) => {
+    if (row.result === 1) {
+      minterms.push(index);
+    }
+  });
+
+  // 如果没有最小项，则返回空字符串
+  if (minterms.length === 0) {
+    SimplifiedExpression.value = '';
+    return;
+  }
+
+  // 使用 Quine-McCluskey 算法化简表达式
+  const qm = new QuineMcCluskey(usedVaribles.value, minterms);
+  const simplifiedExpression = qm.getFunction();  // 获取最简表达式
+
+  // 调试输出简化表达式
+  console.log('Simplified Expression from QuineMcCluskey:', simplifiedExpression);
+
+  // 确保简化后的表达式中不包含 undefined
+  if (simplifiedExpression.includes('undefined')) {
+    SimplifiedExpression.value = '表达式生成失败，包含未定义变量';
+  } else {
+    SimplifiedExpression.value = simplifiedExpression;
+  }
+};
+
+
+
+
+
+
+
+
 
 // parser树所使用的listener
 class VariableCount extends LogicListener {
@@ -179,22 +244,30 @@ class VariableCount extends LogicListener {
   }
 
   // 完成分析时执行，进行收尾操作，并计算真值表
+// 完成分析时执行，进行收尾操作，并计算真值表
   exitProg(ctx) {
-    // 若输入与结果不一致，说明逻辑表达式不完整
-    if (ctx.getText() !== inputValue.value.replace(/\s/g, '')) {
-      if (!errorMsg.value) {
-        errorMsg.value = 'handled error';
-        errorMsgData.value = { text: 'parser.error.notvaild', params: {} };
-      }
-      return;
+  // 若输入与结果不一致，说明逻辑表达式不完整
+  if (ctx.getText() !== inputValue.value.replace(/\s/g, '')) {
+    if (!errorMsg.value) {
+      errorMsg.value = 'handled error';
+      errorMsgData.value = { text: 'parser.error.notvaild', params: {} };
     }
-
-    // 根据函数字符串生成可直接调用的函数
-    finalFunction = new Function('values', finalFunctionStr);
-
-    // 计算真值表
-    calcTruthTable();
+    return;
   }
+
+  // 根据函数字符串生成可直接调用的函数
+  finalFunctionStr += `return data["${ctx.getText()}"];`; // 添加返回结果
+
+  finalFunction = new Function('values', finalFunctionStr); // 生成最终函数
+
+  console.log('Generated function string:', finalFunctionStr); // 调试输出
+
+  // 计算真值表
+  calcTruthTable();
+}
+
+
+
 
   // 完成括号匹配时执行
   exitPar(ctx) {
@@ -456,6 +529,14 @@ const calcNormalForm = () => {
           <div v-else class="content">1 ({{ t('property.tautology') }})</div>
         </div>
       </div>
+      <div class="inner-wrapper" :data-title="'最简式'">
+        <div class="item">
+          <p class="label">最简与或式：</p>
+          <div class="content">
+            {{ SimplifiedExpression }}
+          </div>
+        </div>
+      </div>
       <div
         v-if="inDebugMode"
         class="inner-wrapper"
@@ -471,48 +552,10 @@ const calcNormalForm = () => {
             {{ rawToken.start.toString().padEnd(3) }}
             {{ t('lexer.stoppos') }} {{ rawToken.stop.toString().padEnd(3) }}
             {{ t('lexer.type') }}
-            {{
-              (rawToken.type == -1
-                ? 'EOF'
-                : LogicParser.symbolicNames[rawToken.type]
-              ).padEnd(12)
-            }}
+            {{"(" + (rawToken.type == -1 ? 'EOF' : LogicParser.symbolicNames[rawToken.type]) + ")"}}
             {{ t('lexer.value') }} {{ rawToken.text }}
             <br />
           </code>
-        </div>
-      </div>
-      <div
-        v-if="inDebugMode"
-        class="inner-wrapper"
-        :data-title="t('parser.title')"
-      >
-        <div class="scroll-wrapper">
-          <div class="used-variables">
-            {{ t('parser.used-var') }}
-            <span v-if="usedVaribles.length == 0">
-              {{ t('parser.used-var.empty') }}
-            </span>
-            <span v-for="variable of usedVaribles" :key="variable">
-              {{ variable }}
-            </span>
-          </div>
-          <div class="used-subsequences">
-            {{ t('parser.used-subsequence') }}
-            <span v-if="usedSubsequences.length == 0">
-              {{ t('parser.used-var.empty') }}
-            </span>
-            <span v-for="subsequence of usedSubsequences" :key="subsequence">
-              {{ subsequence }}
-            </span>
-          </div>
-          <div class="used-subsequences">
-            {{ t('parser.tree') }}
-            <span v-if="!RawTree">EOF</span>
-            <ul v-if="RawTree">
-              <Tree :item="(RawTree as Tree).children[0]" />
-            </ul>
-          </div>
         </div>
       </div>
     </div>
@@ -553,6 +596,8 @@ const calcNormalForm = () => {
     </div>
   </div>
 </template>
+
+
 
 <style scoped>
 .wrapper {
