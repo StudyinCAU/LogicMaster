@@ -96,8 +96,8 @@ watch(() => props.show, () => {
         <div class="btn" @click="onBtnClick('¬')">¬</div>
         <div class="btn" @click="onBtnClick('⋀')">⋀</div>
         <div class="btn" @click="onBtnClick('⋁')">⋁</div>
-        <div class="btn" @click="onBtnClick('→')">→</div>
-        <div class="btn" @click="onBtnClick('⇔')">⇔</div>
+        <!-- <div class="btn" @click="onBtnClick('→')">→</div>
+        <div class="btn" @click="onBtnClick('⇔')">⇔</div> -->
         <div class="btn" @click="onBtnClick('⊕')">⊕</div> <!-- XOR 按钮 -->
         <div class="btn" @click="onBtnClick('≡')">≡</div> <!-- XNOR 按钮 -->
         <div class="btn" @click="onBtnClick('(')">(</div>

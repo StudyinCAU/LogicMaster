@@ -1,4 +1,5 @@
-```md
+
+
 # Truth Table Generator
 
 This project is a **Truth Table Generator** that allows users to input logical expressions and generate corresponding truth tables. The project is built using Vue.js and ANTLR for parsing the logical expressions.
@@ -70,7 +71,7 @@ To run the linter:
 npm run lint
 ```
 
-### File Structure
+## File Structure
 
 ```plaintext
 ├── public/                     # Public assets
@@ -108,9 +109,4 @@ Input the following logical expression in the input box:
 (A ⋀ B) → (¬C ⋁ D)
 ```
 
-The app will generate the truth table and display both the DNF and CNF for the expression.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
+This will generate the truth table for the given expression.
