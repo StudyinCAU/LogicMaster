@@ -18,11 +18,11 @@ import {
 import FloatInputBtnGroup from '../components/FloatInputBtnGroup.vue';
 import { Icon } from '@iconify/vue';
 // import { quineMcCluskey, convertToReadableExpression } from '../utils/qm';
-import QuineMcCluskey from '../utils/quinemccluskey';
+import QuineMcCluskey from '../utils/quinemccluskey.js';
 
 
 const SimplifiedExpression = ref('');
-
+const SimplifiedMaxtermExpression = ref('');
 // i18n
 const { t } = useI18n();
 
@@ -185,8 +185,6 @@ const calcTruthTable = () => {
   calcSimplifiedExpression();
 };
 
-
-// 新增函数：计算最简与或式
 const calcSimplifiedExpression = () => {
   const minterms = [];
 
@@ -200,27 +198,44 @@ const calcSimplifiedExpression = () => {
   // 如果没有最小项，则返回空字符串
   if (minterms.length === 0) {
     SimplifiedExpression.value = '';
+    SimplifiedMaxtermExpression.value = '';
     return;
   }
 
-  // 使用 Quine-McCluskey 算法化简表达式
-  const qm = new QuineMcCluskey(usedVaribles.value, minterms);
-  const simplifiedExpression = qm.getFunction();  // 获取最简表达式
+  // 将变量名提取为一个字符串，例如 "ABC"
+  const variablesString = usedVaribles.value.join(''); // 例如："ABC"
 
-  // 调试输出简化表达式
-  console.log('Simplified Expression from QuineMcCluskey:', simplifiedExpression);
+  // 调试信息：查看提取出的变量和最小项索引
+  console.log('Variables:', variablesString);
+  console.log('Minterms:', minterms);
 
-  // 确保简化后的表达式中不包含 undefined
-  if (simplifiedExpression.includes('undefined')) {
-    SimplifiedExpression.value = '表达式生成失败，包含未定义变量';
-  } else {
-    SimplifiedExpression.value = simplifiedExpression;
+  // 使用 QuineMcCluskey 算法化简表达式
+  try {
+    const qm = new QuineMcCluskey(variablesString, minterms); // 传入变量字符串和最小项索引
+
+    // 获取最简与或式
+    const simplifiedExpression = qm.getFunction();
+    // 获取最简或与式
+    const simplifiedMaxtermExpression = qm.getMaxtermFunction();
+
+    // 在控制台打印调用 QuineMcCluskey 后返回的化简结果
+    console.log('QuineMcCluskey returned SimplifiedExpression:', simplifiedExpression);
+    console.log('QuineMcCluskey returned SimplifiedMaxtermExpression:', simplifiedMaxtermExpression);
+
+    // 确保简化后的表达式中不包含 undefined
+    SimplifiedExpression.value = simplifiedExpression.includes('undefined')
+      ? '表达式生成失败，包含未定义变量'
+      : simplifiedExpression;
+
+    SimplifiedMaxtermExpression.value = simplifiedMaxtermExpression.includes('undefined')
+      ? '表达式生成失败，包含未定义变量'
+      : simplifiedMaxtermExpression;
+  } catch (error) {
+    console.error('Error during simplification:', error);
+    SimplifiedExpression.value = '简化过程中发生错误';
+    SimplifiedMaxtermExpression.value = '简化过程中发生错误';
   }
 };
-
-
-
-
 
 
 
@@ -529,14 +544,20 @@ const calcNormalForm = () => {
           <div v-else class="content">1 ({{ t('property.tautology') }})</div>
         </div>
       </div>
-      <div class="inner-wrapper" :data-title="'最简式'">
-        <div class="item">
-          <p class="label">最简与或式：</p>
-          <div class="content">
-            {{ SimplifiedExpression }}
+        <div class="inner-wrapper" :data-title="'最简式'">
+          <div class="item">
+            <p class="label">最简与或式：</p>
+            <div class="content">
+              {{ SimplifiedExpression }}
+            </div>
+          </div>
+          <div class="item">
+            <p class="label">最简或与式：</p>
+            <div class="content">
+              {{ SimplifiedMaxtermExpression }}
+            </div>
           </div>
         </div>
-      </div>
       <div
         v-if="inDebugMode"
         class="inner-wrapper"

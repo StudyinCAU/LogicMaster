@@ -1,7 +1,5 @@
-
 import Minterm from "./minterm.js";
-import { decToBin, valueIn } from './util.js';
-
+import { decToBin, valueIn } from "./util.js";
 
 /**
  * A class to handle processing the Quine-McCluskey Algorithm
@@ -12,8 +10,6 @@ export default class QuineMcCluskey {
      * Creates a new QuineMcCluskey object to process the Quine-Mccluskey Algorithm
      */
     constructor(variables, values, dontCares = [], isMaxterm = false) {
-        // 预处理输入表达式，替换异或和同或
-        this.preprocessVariables(variables);
         values.sort();
         this.variables = variables;
         this.values = values;
@@ -24,21 +20,6 @@ export default class QuineMcCluskey {
         this.func = null;
         this.func = this.getFunction();
     }
-    
-    // 添加预处理函数
-    preprocessVariables(variables) {
-        for (let i = 0; i < variables.length; i++) {
-            if (variables[i].includes("⊕")) {
-                // 将异或转换为 (A ⋀ ¬B) ⋁ (¬A ⋀ B)
-                variables[i] = variables[i].replace("⊕", "(A⋀¬B)⋁(¬A⋀B)");
-            }
-            if (variables[i].includes("≡")) {
-                // 将同或转换为 (A ⋀ B) ⋁ (¬A ⋀ ¬B)
-                variables[i] = variables[i].replace("≡", "(A⋀B)⋁(¬A⋀¬B)");
-            }
-        }
-    }
-    
 
     // Helper Methods
 
@@ -230,18 +211,21 @@ export default class QuineMcCluskey {
      */
     solve() {
 
-        // 获取 prime implicants
+        // Get the prime implicants
         let primeImplicants = this.getPrimeImplicants();
-    
-        // 保留 essential prime implicants
+
+        // Keep track of values with only 1 implicant
+        //  These are the essential prime implicants
         let essentialPrimeImplicants = [];
-        let valuesUsed = Array(this.values.length).fill(false);
-    
-        // 遍历所有值，找到只能由一个 prime implicant 覆盖的 essential prime implicants
+        let valuesUsed = [];
+        for (let i = 0; i < this.values.length; i++) {
+            valuesUsed.push(false);
+        }
+
+        // Iterate through values
         for (let i = 0; i < this.values.length; i++) {
             let value = this.values[i];
-    
-            // 检查哪些 prime implicants 覆盖当前的值
+
             let uses = 0;
             let last = null;
             for (const minterm of primeImplicants) {
@@ -250,85 +234,195 @@ export default class QuineMcCluskey {
                     last = minterm;
                 }
             }
-            
-            // 如果该值只能由一个 implicant 覆盖，加入 essential implicants
-            if (uses === 1 && last && !valueIn(last, essentialPrimeImplicants)) {
+            if (uses == 1 && !valueIn(last, essentialPrimeImplicants)) {
                 for (const v of last.getValues()) {
                     if (!valueIn(v, this.dontCares)) {
-                        let idx = this.values.indexOf(v);
-                        if (idx !== -1) valuesUsed[idx] = true;
+                        valuesUsed[this.values.indexOf(v)] = true;
                     }
                 }
                 essentialPrimeImplicants.push(last);
             }
         }
-    
-        // 如果所有值都已覆盖，直接返回 essential implicants
-        if (valuesUsed.every(Boolean)) {
+
+        // Check if all values were used
+        let found = false;
+        for (const value of valuesUsed) {
+            if (!value) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
             return essentialPrimeImplicants;
         }
-    
-        // 剩余未覆盖的值
-        let remainingValues = this.values.filter((_, i) => !valuesUsed[i]);
-        
-        // 筛选 prime implicants，找到能覆盖剩余值的
-        let remainingImplicants = primeImplicants.filter(implicant =>
-            implicant.getValues().some(value => remainingValues.includes(value))
-        );
-    
-        // 创建 powerset，并找到最优组合
-        let additionalImplicants = this.powerSet(remainingValues, remainingImplicants);
-    
-        return essentialPrimeImplicants.concat(additionalImplicants);
-    }
-    
 
-    /**
-     * Returns the expression in a readable form
-     */
-/**
- * Returns the expression in a readable form
- */
+        // Keep track of prime implicants that cover as many values as possible
+        //  with as few variables as possible
+        let newPrimeImplicants = [];
+        for (const implicant of primeImplicants) {
+            if (!valueIn(implicant, essentialPrimeImplicants)) {
+
+                // Check if the current implicant only consists of dont cares
+                let add = false;
+                for (const value of implicant.getValues()) {
+                    if (!valueIn(value, this.dontCares)) {
+                        add = true;
+                        break;
+                    }
+                }
+                if (add) {
+                    newPrimeImplicants.push(implicant);
+                }
+            }
+        }
+        primeImplicants = newPrimeImplicants;
+
+        // Check if there is only 1 implicant left (very rare but just in case)
+        if (primeImplicants.length == 1) {
+            return essentialPrimeImplicants.concat(primeImplicants);
+        }
+
+        // Create a power set from the remaining prime implicants and check which
+        //  combination of prime implicants gets the simplest form
+        let newValues = [];
+        for (let i = 0; i < this.values.length; i++) {
+            if (!valuesUsed[i]) {
+                newValues.push(this.values[i]);
+            }
+        }
+
+        let tempset = this.powerSet(newValues, primeImplicants);
+
+        return essentialPrimeImplicants.concat(
+            this.powerSet(
+                newValues,
+                primeImplicants
+            )
+        );
+    }
+
     getFunction() {
-        // 如果已经生成过表达式，直接返回
+        // Check if function already exists, return it
         if (this.func != null) {
             return this.func;
         }
-
-        // 获取求解后的最小项
+    
+        // Get the prime implicants and variables
         let primeImplicants = this.solve();
-
-        // 检查是否没有 implicant，返回 0
-        if (primeImplicants.length === 0) {
+    
+        // Check if there are no prime implicants; Always False
+        if (primeImplicants.length == 0) {
             return "0";
         }
-
+    
+        if (primeImplicants.length == 1) {
+            let count = 0;
+            for (const index of primeImplicants[0].getValue()) {
+                if (index == "-") {
+                    count += 1;
+                }
+            }
+            if (count == this.variables.length) {
+                return "1";
+            }
+        }
+    
         let result = [];
-
-        // 遍历所有 prime implicant
+    
+        // Iterate through the prime implicants
         for (let i = 0; i < primeImplicants.length; i++) {
             let implicant = primeImplicants[i];
             let implicantResult = [];
-
-            // 遍历 implicant 中的每个变量位
-            for (let j = 0; j < implicant.getValue().length; j++) {
+    
+            // Ensure that we only process bits up to the number of variables provided
+            for (let j = 0; j < Math.min(implicant.getValue().length, this.variables.length); j++) {
                 const bit = implicant.getValue().charAt(j);
-
-                if (bit === "1") {
-                    implicantResult.push(this.variables[j]); // 正常变量
-                } else if (bit === "0") {
-                    implicantResult.push(`¬${this.variables[j]}`); // 取反变量
+    
+                console.log(`Processing bit ${j} of implicant: ${bit} (variable: ${this.variables[j]})`);
+    
+                // Skip the "don't care" bits
+                if (bit === "-") {
+                    console.log(`Skipping bit ${j} because it's a don't care (-)`);
+                    continue;  // Skip this bit as it does not affect the result
+                }
+    
+                // If the implicant bit is 0 (minterm) or 1 (maxterm), add the NOT condition
+                if (bit === (this.isMaxterm ? "1" : "0")) {
+                    implicantResult.push(`¬${this.variables[j]}`);
+                    console.log(`Adding NOT condition for variable: ${this.variables[j]}`);
+                } else if (bit === "1") {
+                    implicantResult.push(this.variables[j]);
+                    console.log(`Adding variable: ${this.variables[j]}`);
+                } else {
+                    console.log(`Unexpected bit value at ${j}: ${bit}`);
                 }
             }
-
-            // 将拼接后的 implicant 加入到结果数组中
+    
+            // Join the implicant result with AND (⋀) operators if not empty, and wrap in parentheses
             if (implicantResult.length > 0) {
-                result.push(implicantResult.join("⋀")); // 用 AND 连接每个最小项
+                result.push(`(${implicantResult.join(" ⋀ ")})`);
             }
         }
-
-        // 用 OR 连接所有 implicants，返回最终表达式
+    
+        // Combine implicants with OR (⋁) and return the final result
         return result.length > 0 ? result.join(" ⋁ ") : "1";
     }
+    
+    getMaxtermFunction() {
+        // Get the prime implicants and variables
+        let primeImplicants = this.solve();
+    
+        // Check if there are no prime implicants; Always True for Maxterm (contradiction case)
+        if (primeImplicants.length == 0) {
+            return "1"; // OR-ed terms are all true if empty (Tautology)
+        }
+    
+        if (primeImplicants.length == 1) {
+            let count = 0;
+            for (const index of primeImplicants[0].getValue()) {
+                if (index == "-") {
+                    count += 1;
+                }
+            }
+            if (count == this.variables.length) {
+                return "0";  // Maxterm: all variables don't care means the function is always false
+            }
+        }
+    
+        let result = [];
+    
+        // Iterate through the prime implicants
+        for (let i = 0; i < primeImplicants.length; i++) {
+            let implicant = primeImplicants[i];
+            let implicantResult = [];
+    
+            // Ensure that we only process bits up to the number of variables provided
+            for (let j = 0; j < Math.min(implicant.getValue().length, this.variables.length); j++) {
+                const bit = implicant.getValue().charAt(j);
+    
+                // Skip the "don't care" bits
+                if (bit === "-") {
+                    continue;  // Skip this bit as it does not affect the result
+                }
+    
+                // Maxterm: If the implicant bit is 0 (minterm), it represents the variable
+                if (bit === "0") {
+                    implicantResult.push(this.variables[j]);  // Variable as is
+                } else if (bit === "1") {
+                    implicantResult.push(`¬${this.variables[j]}`);  // Negation for 1 in maxterm
+                }
+            }
+    
+            // Join the implicant result with OR (⋁) operators and wrap in parentheses
+            if (implicantResult.length > 0) {
+                result.push(`(${implicantResult.join(" ⋁ ")})`);
+            }
+        }
+    
+        // Combine implicants with AND (⋀)
+        return result.length > 0 ? result.join(" ⋀ ") : "1";
+    }
+    
+    
 
 }

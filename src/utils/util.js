@@ -1,11 +1,11 @@
-import Minterm from './minterm.js';
+import Minterm from "./minterm.js";  // 使用 import 引入 Minterm
 
 /**
  * Converts a value from decimal to binary
  * 
  * @param value The value to convert to binary
  */
-export function decToBin(value) {
+function decToBin(value) {
     return (value >>> 0).toString(2);
 }
 
@@ -15,7 +15,7 @@ export function decToBin(value) {
  * @param value The value to look for in an array
  * @param array The array to look for a value in
  */
-export function valueIn(value, array) {
+function valueIn(value, array) {
     for (const compare of array) {
         if (compare == value) {
             return true;
@@ -29,3 +29,5 @@ export function valueIn(value, array) {
     }
     return false;
 }
+
+export { decToBin, valueIn };  // 使用 export 导出方法

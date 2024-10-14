@@ -70,24 +70,42 @@ export default class Minterm {
      * Combines 2 Minterms together if they can be combined
      */
     combine(minterm) {
+        
+        // Check if this value is this same; If so, do nothing
+        if (this.value == minterm.value) {
+            return null;
+        }
+        
+        // Check if the values are the same; If so, do nothing
+        if (this.values.length == minterm.values.length &&
+            this.values.every(function(u,i) {return u === minterm.values[i]})) {
+            return null;
+        }
+        
+        // Keep track of the difference between the minterms
         let diff = 0;
         let result = "";
-    
-        for (let i = 0; i < this.value.length; i++) {
-            if (this.value.charAt(i) !== minterm.value.charAt(i)) {
-                diff++;
-                result += "-"; // 不同的位置使用 don't care
-            } else {
+
+        // Iterate through the bits in this Minterm's value
+        for (const i in this.value) {
+
+            // Check if the current bit value differs from the minterm's bit value
+            if (this.value.charAt(i) != minterm.value.charAt(i)) {
+                diff += 1;
+                result += "-";
+            }
+
+            // There is no difference
+            else {
                 result += this.value.charAt(i);
             }
-    
-            // 如果 diff 超过 1，返回 null 表示无法合并
+
+            // The difference has exceeded 1
             if (diff > 1) {
                 return null;
             }
         }
-    
+
         return new Minterm(this.values.concat(minterm.values), result);
     }
-    
 }
